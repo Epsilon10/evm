@@ -57,9 +57,10 @@ void StackVM::doPrimitive() {
             running = 0;
             break;
         case 1: // add
-            std::cout << "add" << memory[sp - 1] << " " << memory[sp] << std::endl;
+            std::cout << "add " << memory[sp - 1] << " " << memory[sp] << std::endl;
             // when we add to values from the stack, we will pop two values off the stack 
             memory[sp - 1] = memory[sp-1] + memory[sp];
+            sp--;
             break;
 
     }
