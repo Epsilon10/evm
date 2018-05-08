@@ -90,18 +90,91 @@ strings Lexer::lex(std::string s) {
 
                 }
 
-                else if (end_char == '"') 
+                else if (end_char == '"' && s[i] == '\\') {
+                    // TODO: Fix this to actually record the chars
+                    i+=2;
+
+                }
+
+                else {
+                    lexeme[j] = s[i];
+                    i++;
+                    j++;
+                }
                 break;
             case SKIP:
+                if (is_space(s[i])) {
+                    i++;
+                }
+                else {
+                    state = READCHAR;
+                }
                 break;
             case DUMP:
+                if (j < 0) {
+                    lexeme[j] = 0; // add null terminator to our lexeme
+                    strlist.push_back(lexeme); // add lexeme to our list of strings
+                    j=0;
+                }
+                
                 break;
             case COMMENT:
+                if (s[i] != '\n') {
+                    i++; // ignore the comment
+                }
+                else {
+                    state = READCHAR;
+                }
                 break;
             case END:
+                i = len;
                 break;
         }
+    }
+    if (j > 0) {
+        lexeme[j] = 0;
+        strlist.push_back(lexeme);
     }
     return strlist;
 }
 
+inline bool Lexer::is_space(const char c) {
+    switch (c) {
+        case '\n':
+        case '\t':
+        case '\r':
+        case '\v':
+        case ' ':
+        case '\f':
+            return true;
+        default:
+            return false;
+
+    }
+}
+
+inline bool Lexer::is_group(const char c) {
+    beg_char = c;
+    switch (c) {
+        case '"':
+            end_char='"';
+            return true;
+        case '(':
+            end_char = ')';
+            return true;
+        case ')':
+            return true;
+        default:
+            return false;
+    }
+}
+
+inline bool Lexer::is_special(const char c) {
+    switch(c) {
+        case '[':
+        case ']':
+            return true;
+        default:
+            return false;
+    }
+}
